@@ -1,73 +1,214 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Poppins", sans-serif;
-    --bronze-color: #cd7f32;
-    --silver-color: #c0c0c0;
-    --gold-color: #ffd700; 
+/* A Modern CSS Reset */
+/* By https://www.joshwcomeau.com/css/custom-css-reset/*/
+/* 1. Use a more-intuitive box-sizing model */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  /* outline: 1px solid red; */
+}
+
+/* 2. Remove default margin */
+*:not(dialog) {
+  margin: 0;
+}
+
+/* 3. Enable keyword animations */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    interpolate-size: allow-keywords;
+  }
 }
 
 body {
-    background: lightblue;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  /* 4. Add accessible line-height */
+  line-height: 1.5;
+  /* 5. Improve text rendering */
+  -webkit-font-smoothing: antialiased;
 }
 
-.skill {
-    width: 160px;
-    height: 160px;
-    /* background-color: #cd7f32; */
-    position: relative;
-}
-
-.outer {
-    height: 160px;
-    width: 160px;
-    /* makes it a circle */
-    border-radius: 50%; 
-    border: 1px solid red;
-    padding: 20px;
-}
-
-.inner {
-    height: 120px;
-    width: 120px;
-    /* makes it a circle */
-    border-radius: 50%; 
-    border: 1px solid red;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#number {
-    font-weight: 600;
-    color: #555;
-}
-
-circle {
-   fill: none;
-   stroke: url(#GradientColor);
-   stroke-width: 20px;
-   /* 435 = 360° --> 1° = 1,21*/
-   stroke-dasharray: 435;
-   /* stroke-dashoffset: 148; */
-   stroke-dashoffset: 435;
-   animation: anim 2s linear forwards;
-}
-
+/* 6. Improve media defaults */
+img,
+picture,
+video,
+canvas,
 svg {
-    position: absolute;
-    top: 0;
-    left: 0;
+  display: block;
+  max-width: 100%;
 }
 
-@keyframes anim{
-    100% {
-        stroke-dashoffset: 148;
+/* 7. Inherit fonts for form controls */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* 8. Avoid text overflows */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* 9. Improve line wrapping */
+p {
+  text-wrap: pretty;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: balance;
+}
+
+/*
+  10. Create a root stacking context
+*/
+#root,
+#__next {
+  isolation: isolate;
+}
+
+/* -------------------------------------- */
+
+/* Progress Bar */
+/* let's us animate the custom prop */
+/* if @property isn't supported, everything works, just without the animation */
+@property --progress {
+  syntax: "<length-percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+[role="progressbar"] {
+  --size: 132px;
+  --bar-width: 20px;
+
+  font-size: 2rem;
+  width: var(--size);
+  aspect-ratio: 1 / 1;
+  margin: 2rem auto;
+  background: conic-gradient(
+    var(--color-dark),
+    var(--color-dark) var(--progress),
+    var(--color-dark-glare) 0%
+  );
+  border-radius: 50vmax;
+
+  display: grid;
+  place-items: center;
+
+  /* this works thanks to the @property at the top */
+  transition: --progress 500ms linear;
+
+  /* we only have this role if JS is enabled */
+  /* which means it's safe to hide the message here */
+  > span {
+    display: none;
+  }
+}
+
+/* using aria-valuenow, to help enforce using it in the JS */
+[role="progressbar"]::after {
+  content: attr(aria-valuenow) "%";
+  background: white;
+  width: calc(100% - var(--bar-width));
+  aspect-ratio: 1;
+  border-radius: inherit;
+  display: grid;
+  place-items: center;
+}
+
+/* when progress === 100 */
+[role="progressbar"][aria-valuenow="100"]::after {
+  /* this is kind of hacky, but it allows the percent to be at 100% for a bit before the checkbox comes in, which feels better */
+  animation: progressComplete 0s forwards;
+  animation-delay: 1000ms;
+}
+
+@keyframes progressComplete {
+  to {
+    content: url("data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODUiIGhlaWdodD0iODUiIHZpZXdCb3g9IjUgMzAgNzUgMTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik0zNS40MjM3IDUzLjczMjdMNjcuOTc4NyAyMS4xNzc3TDcyLjk4OTUgMjYuMTg0MkwzNS40MTk1IDYzLjc1TDEyLjg4NiA0MS4yMTIyTDE3Ljg5MjUgMzYuMjAxNUwzNS40MjM3IDUzLjczMjdaIiBmaWxsPSIjMWYxYTM4Ii8+Cjwvc3ZnPgo=");
+    background: var(--color-success);
+  }
+}
+
+/* if js is disabled */
+.progressbar:not([role="progressbar"]) {
+  position: relative;
+  &::after {
+    display: none;
+  }
+  span {
+    font-size: 1rem;
+    text-align: center;
+    color: var(--color-success-dark);
+  }
+}
+
+@layer general-styling-and-whatnot {
+  :root {
+    --font-base: "Space Mono", monospace;
+    --color-dark: #1f1a38;
+    --color-dark-glare: #989ea9;
+    --color-success: #76f7bf;
+    --color-success-dark: #2d7a59;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-base);
+    color: var(--color-dark);
+    width: min(100% - 3rem, 40ch);
+    margin-inline: auto;
+    margin-block: 3rem;
+  }
+
+  a {
+    color: var(--color-dark);
+
+    &:is(:hover, :focus) {
+      color: var(--color-success-dark);
     }
-}
+  }
 
+  .testing-ground {
+    color: var(--color-success);
+    font-weight: bold;
+    background: var(--color-dark);
+    border: 5px solid var(--color-dark-glare);
+    padding: 1rem;
+    margin-block: 3rem;
+
+    display: grid;
+    gap: 1rem;
+  }
+
+  .testing-ground button {
+    cursor: pointer;
+    font: inherit;
+    background: white;
+    color: var(--color-dark);
+    border: 0;
+    padding: 0.5rem;
+
+    &:is(:hover, :focus-visible) {
+      background: var(--color-success);
+    }
+
+    &:is(:focus-visible) {
+      outline: 5px solid var(--color-dark-glare);
+    }
+  }
+}
